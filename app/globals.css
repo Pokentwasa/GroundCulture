@@ -1,0 +1,257 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   GROUND CULTURE - DESIGN TOKENS
+   One system. Cream + warm charcoal + olive green, with a single chilli-red
+   accent used like a marker circle on a gig poster.
+   ========================================================================== */
+:root {
+  --gc-paper: #f1ecde;
+  --gc-paper-2: #e7dec7;
+  --gc-ink: #14130f;
+  --gc-ink-2: #201e17;
+  --gc-green: #44521e;
+  --gc-green-2: #7a9040;
+  --gc-chilli: #e1391b;
+
+  --gc-line: rgba(20, 19, 15, 0.16);
+  --gc-line-strong: rgba(20, 19, 15, 0.42);
+  --gc-line-light: rgba(241, 236, 222, 0.2);
+
+  /* spacing scale */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 8rem;
+
+  /* motion */
+  --ease-cultural: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-micro: 220ms;
+  --dur-section: 700ms;
+
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+body {
+  margin: 0;
+  background: var(--gc-paper);
+  color: var(--gc-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Custom cursor: only hide native cursor once the JS cursor is live. */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button {
+  cursor: none;
+}
+
+/* ---- Film / paper grain, fixed over everything ------------------------- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+.display {
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.meta {
+  font-family: var(--font-meta), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Fluid display sizes, reviewed rather than one blanket clamp. */
+.d-mega {
+  font-size: clamp(3.75rem, 15vw, 15rem);
+}
+.d-xl {
+  font-size: clamp(3rem, 9vw, 8.5rem);
+}
+.d-lg {
+  font-size: clamp(2.5rem, 6.5vw, 6rem);
+}
+.d-md {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+}
+
+.balance {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--gc-chilli);
+  color: var(--gc-paper);
+}
+
+/* ==========================================================================
+   COMPONENT PRIMITIVES
+   ========================================================================== */
+.u-container {
+  width: 100%;
+  max-width: var(--tw-max-w, 1600px);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.hairline {
+  border-color: var(--gc-line);
+}
+
+/* Poster frame - the recurring physical motif (event posters, media). */
+.poster {
+  position: relative;
+  background: var(--gc-ink);
+  overflow: hidden;
+}
+
+/* Section index label, e.g. "01 / TONIGHT" - used only where the section
+   really is part of the homepage sequence. */
+.section-index {
+  font-family: var(--font-meta), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Vertical rotated label. */
+.v-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Underline wipe for text links. */
+.link-wipe {
+  position: relative;
+  display: inline-block;
+}
+.link-wipe::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.1em;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-micro) var(--ease-out-soft);
+}
+.link-wipe:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Marquee (used ONCE, deliberately). */
+@keyframes gc-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: gc-marquee 34s linear infinite;
+}
+
+/* Draggable rail cursor affordance. */
+.grab {
+  cursor: grab;
+}
+.grabbing {
+  cursor: grabbing;
+}
+
+/* Reveal helper set by GSAP. Elements start hidden and are cleared on
+   reveal; if JS never runs, the fallback below shows everything. */
+.reveal {
+  opacity: 0;
+}
+.reveal-line {
+  display: block;
+  overflow: hidden;
+}
+
+/* Hide scrollbars on horizontal rails. */
+.no-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY / MOTION
+   ========================================================================== */
+:focus-visible {
+  outline: 3px solid var(--gc-chilli);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* No-JS fallback: never leave content invisible. */
+.no-js .reveal {
+  opacity: 1;
+}
