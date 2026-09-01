@@ -47,7 +47,7 @@ export default function Food() {
     <section ref={root} className="bg-paper-2 py-16 md:py-28">
       <div className="u-container">
         <span className="section-index text-ink/60">
-          03 / <span className="text-chilli">Eat</span>
+          02 / <span className="text-chilli">Eat</span>
         </span>
 
         <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">

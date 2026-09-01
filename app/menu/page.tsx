@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
 import ArrowLink from "@/components/ArrowLink";
 import { site } from "@/lib/site";
-import { menuIntro, menuSections } from "@/data/menu";
+import { menuIntro } from "@/data/menu";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -86,38 +86,34 @@ export default function MenuPage() {
         ))}
       </div>
 
-      {/* Structured summary (content model, editable) */}
-      <div className="u-container mt-20 border-t border-ink/15 pb-24 pt-10">
-        <div className="flex items-center justify-between">
-          <h2 className="display d-md text-ink">Quick reference</h2>
-          <span className="meta text-[0.6rem] uppercase tracking-[0.14em] text-chilli">
-            Sample &#183; edit in data/menu.ts
-          </span>
-        </div>
-        <div className="mt-8 grid gap-10 md:grid-cols-2">
-          {menuSections.map((s) => (
-            <div key={s.title}>
-              <h3 className="display text-2xl text-ink">{s.title}</h3>
-              {s.note && (
-                <p className="meta mt-1 text-[0.62rem] uppercase tracking-[0.12em] text-ink/50">
-                  {s.note}
-                </p>
-              )}
-              <ul className="mt-4 flex flex-col divide-y divide-ink/10">
-                {s.items.map((it) => (
-                  <li
-                    key={it.name}
-                    className="flex items-baseline justify-between gap-4 py-2"
-                  >
-                    <span className="font-medium">{it.name}</span>
-                    <span className="meta shrink-0 text-[0.66rem] uppercase tracking-[0.1em] text-ink/45">
-                      {it.price ?? "See card"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+      {/* Closing statement */}
+      <div className="u-container mt-20 border-t border-ink/15 pb-24 pt-10 text-center">
+        <h2 className="display d-lg mx-auto max-w-2xl text-ink">
+          Smashed daily.
+          <br />
+          Served proudly.
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-ink/70">
+          Full prices are on the cards above &mdash; come see us in Observatory,
+          or get it delivered.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <ArrowLink
+            href={site.contact.whatsappOrder}
+            external
+            variant="block"
+            tone="green"
+          >
+            Order on WhatsApp
+          </ArrowLink>
+          <ArrowLink
+            href={site.ordering.uberEats}
+            external
+            variant="block"
+            tone="chilli"
+          >
+            Uber Eats
+          </ArrowLink>
         </div>
       </div>
     </>

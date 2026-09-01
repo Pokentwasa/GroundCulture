@@ -35,11 +35,7 @@ export default function Manifesto() {
       className="bg-ink py-24 text-paper md:py-36"
     >
       <div className="u-container">
-        <span className="section-index text-paper/50">
-          04 / <span className="text-chilli">Manifesto</span>
-        </span>
-
-        <p className="mani-line meta mt-8 max-w-md text-sm uppercase tracking-[0.16em] text-paper/60">
+        <p className="mani-line meta max-w-md text-sm uppercase tracking-[0.16em] text-paper/60">
           We didn&#39;t build this just to sell coffee.
         </p>
 

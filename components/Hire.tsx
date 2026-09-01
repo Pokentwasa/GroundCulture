@@ -25,10 +25,7 @@ export default function Hire() {
   return (
     <section className="bg-paper py-16 md:py-28">
       <div className="u-container">
-        <span className="section-index text-ink/60">
-          09 / <span className="text-chilli">Hire</span>
-        </span>
-        <h2 className="display d-xl mt-3 max-w-4xl text-ink">
+        <h2 className="display d-xl max-w-4xl text-ink">
           Make Ground Culture
           <br />
           yours for the day.

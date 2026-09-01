@@ -85,12 +85,6 @@ export default function DayNight() {
   return (
     <section ref={section} className="relative h-[240vh]">
       <div className="sticky top-0 h-[100svh] overflow-hidden">
-        <div className="u-container absolute left-0 right-0 top-6 z-30 md:top-10">
-          <span className="section-index text-ink/60">
-            02 / <span className="text-chilli">Two sides, same culture</span>
-          </span>
-        </div>
-
         {/* DAY base layer */}
         <div className="absolute inset-0 bg-paper">
           <div

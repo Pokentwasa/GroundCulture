@@ -173,6 +173,17 @@ body::after {
   transform-origin: left;
 }
 
+@keyframes gc-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Marquee (used ONCE, deliberately). */
 @keyframes gc-marquee {
   from {

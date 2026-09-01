@@ -70,10 +70,7 @@ export default function Comedy() {
       </div>
 
       <div className="u-container relative z-10 flex min-h-[60vh] flex-col items-center justify-center text-center">
-        <span className="section-index text-ink/60">
-          07 / <span className="text-chilli">Laugh</span>
-        </span>
-        <h2 className="display d-mega mt-4 text-ink mix-blend-multiply">
+        <h2 className="display d-mega text-ink mix-blend-multiply">
           Cape Town
           <br />
           comes here

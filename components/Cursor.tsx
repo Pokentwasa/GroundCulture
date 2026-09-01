@@ -13,11 +13,15 @@ export default function Cursor() {
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer: fine)").matches;
-    if (!fine) return;
-    setEnabled(true);
+    if (fine) setEnabled(true);
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
     document.documentElement.classList.add("has-cursor");
 
-    const el = dot.current!;
+    const el = dot.current;
+    if (!el) return;
     let x = window.innerWidth / 2;
     let y = window.innerHeight / 2;
     let raf = 0;
@@ -48,7 +52,7 @@ export default function Cursor() {
       window.removeEventListener("pointerup", onUp);
       document.documentElement.classList.remove("has-cursor");
     };
-  }, []);
+  }, [enabled]);
 
   if (!enabled) return null;
 

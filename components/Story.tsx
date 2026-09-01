@@ -11,11 +11,7 @@ export default function Story() {
   return (
     <section className="bg-paper py-16 md:py-28">
       <div className="u-container">
-        <span className="section-index text-ink/60">
-          05 / <span className="text-chilli">The story</span>
-        </span>
-
-        <div className="mt-6 grid gap-10 lg:grid-cols-12">
+        <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <h2 className="display d-xl text-ink">
               How we

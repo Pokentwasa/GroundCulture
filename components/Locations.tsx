@@ -30,7 +30,7 @@ export default function Locations() {
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="section-index text-paper/50">
-              06 / <span className="text-chilli">Find us</span>
+              03 / <span className="text-chilli">Find us</span>
             </span>
             <h2 className="display d-xl mt-3 text-paper">
               Where

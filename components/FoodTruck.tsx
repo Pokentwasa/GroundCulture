@@ -44,8 +44,7 @@ export default function FoodTruck() {
     return (
       <section className="bg-green py-16 text-paper">
         <div className="u-container">
-          <span className="section-index text-paper/60">08 / On wheels</span>
-          <h2 className="display d-xl mt-3 text-paper">Culture on wheels.</h2>
+          <h2 className="display d-xl text-paper">Culture on wheels.</h2>
           <div className="mt-10 grid gap-8 sm:grid-cols-2">
             {steps.map((s) => (
               <div key={s.n} className="border-t border-paper/20 pt-4">
@@ -68,10 +67,7 @@ export default function FoodTruck() {
   return (
     <section ref={section} className="relative h-[320vh] bg-green text-paper">
       <div className="sticky top-0 flex h-[100svh] flex-col overflow-hidden">
-        <div className="u-container flex items-center justify-between py-6">
-          <span className="section-index text-paper/60">
-            08 / <span className="text-paper">On wheels</span>
-          </span>
+        <div className="u-container flex items-center justify-end py-6">
           <span className="meta hidden text-[0.66rem] uppercase tracking-[0.16em] text-paper/60 md:block">
             The food-truck model
           </span>
@@ -89,7 +85,7 @@ export default function FoodTruck() {
               on wheels.
             </h2>
             <p className="mt-4 max-w-sm text-sm text-paper/80">
-              Keep scrolling. The truck stays put while Cape Town rolls past.
+              One truck. Every corner of the city.
             </p>
           </div>
 
