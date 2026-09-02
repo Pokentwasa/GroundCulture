@@ -23,15 +23,20 @@ export default function FoodTruck() {
     }
     const ctx = gsap.context(() => {
       const el = track.current!;
-      const getScroll = () => -(el.scrollWidth - window.innerWidth);
+      const getDistance = () => el.scrollWidth - window.innerWidth;
       gsap.to(el, {
-        x: getScroll,
+        x: () => -getDistance(),
         ease: "none",
         scrollTrigger: {
           trigger: section.current,
           start: "top top",
-          end: () => `+=${el.scrollWidth - window.innerWidth}`,
+          // Pin duration must match the track's own scroll distance exactly,
+          // so GSAP owns both (a fixed vh guess on the section drifts out of
+          // sync with content width and cuts the sequence short).
+          end: () => `+=${getDistance()}`,
           scrub: 0.5,
+          pin: true,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
@@ -65,8 +70,8 @@ export default function FoodTruck() {
   }
 
   return (
-    <section ref={section} className="relative h-[320vh] bg-green text-paper">
-      <div className="sticky top-0 flex h-[100svh] flex-col overflow-hidden">
+    <section ref={section} className="relative bg-green text-paper">
+      <div className="flex h-[100svh] flex-col overflow-hidden">
         <div className="u-container flex items-center justify-end py-6">
           <span className="meta hidden text-[0.66rem] uppercase tracking-[0.16em] text-paper/60 md:block">
             The food-truck model

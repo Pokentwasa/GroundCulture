@@ -5,6 +5,7 @@ import DayNight from "@/components/DayNight";
 import Food from "@/components/Food";
 import Manifesto from "@/components/Manifesto";
 import Story from "@/components/Story";
+import Moments from "@/components/Moments";
 import Locations from "@/components/Locations";
 import Comedy from "@/components/Comedy";
 import FoodTruck from "@/components/FoodTruck";
@@ -24,6 +25,7 @@ export default function Home() {
       <Food />
       <Manifesto />
       <Story />
+      <Moments />
       <Locations />
       <Comedy />
       <FoodTruck />
