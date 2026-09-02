@@ -87,8 +87,8 @@ export default function Hero() {
         .to(textStage.current, { opacity: 0, scale: 0.9, duration: 0.22, ease: "none" }, 0)
         .fromTo(
           fistStage.current,
-          { scale: 0.5 },
-          { scale: 1.2, duration: 0.3, ease: "power2.out" },
+          { scale: 0.45 },
+          { scale: 1.08, duration: 0.3, ease: "power2.out" },
           0.08,
         )
         .to(fistStage.current, { opacity: 1, duration: 0.18, ease: "none" }, 0.08)
@@ -132,7 +132,7 @@ export default function Hero() {
             reduced ? "opacity-100" : "opacity-0",
           )}
         >
-          <img src={fist} alt="" className="h-[62vh] w-auto max-w-[88vw] object-contain" />
+          <img src={fist} alt="" className="h-[82vh] w-auto max-w-[92vw] object-contain" />
         </div>
 
         {/* Stage 3: the room, full-bleed. */}
@@ -142,7 +142,10 @@ export default function Hero() {
           className={cn("absolute inset-0 z-0", reduced ? "opacity-100" : "opacity-0")}
         >
           <img src={roomPhoto} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-ink/30" />
+          {/* Dark enough that the fist's white line-art stays crisp on
+              top of a busy photo, light enough that the photo still
+              reads clearly underneath. */}
+          <div className="absolute inset-0 bg-ink/45" />
         </div>
 
         {/* Top eyebrow */}
