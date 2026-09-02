@@ -56,20 +56,27 @@ export default function Hero() {
     return () => ctx.revert();
   }, []);
 
-  // Scroll-driven centrepiece: headline -> fist (big, centred) -> room
-  // photo. Pinned for its own scroll distance (GSAP-owned, not a guessed
-  // CSS height - see the Day/Night and food-truck fixes for why that
-  // matters), each stage an independent opacity crossfade so nothing gets
-  // sliced by a moving wipe line.
+  // Scroll-driven centrepiece: headline -> fist (big, centred, growing as
+  // it fades in) -> room photo, which starts revealing behind the fist
+  // before it's gone rather than waiting its turn. The chrome (eyebrow /
+  // CTAs / utility bar) clears out of the way for that whole passage and
+  // only returns once the photo has taken over, so the transition itself
+  // reads as one clean, uncluttered moment. Pinned for its own scroll
+  // distance (GSAP-owned, not a guessed CSS height - see the Day/Night
+  // and food-truck fixes for why that matters); every stage is an
+  // independent transform/opacity tween, never a clip-path, so nothing
+  // gets sliced mid-transition.
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
+      const chrome = gsap.utils.toArray<HTMLElement>(".hero-fade");
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
           start: "top top",
-          end: () => `+=${window.innerHeight * 1.4}`,
+          end: () => `+=${window.innerHeight * 1.6}`,
           scrub: 0.6,
           pin: pinTarget.current,
           anticipatePin: 1,
@@ -77,10 +84,18 @@ export default function Hero() {
         },
       });
 
-      tl.to(textStage.current, { opacity: 0, scale: 0.92, duration: 0.22, ease: "none" }, 0)
-        .to(fistStage.current, { opacity: 1, duration: 0.22, ease: "none" }, 0.06)
-        .to(fistStage.current, { opacity: 0, duration: 0.2, ease: "none" }, 0.5)
-        .to(photoStage.current, { opacity: 1, duration: 0.25, ease: "none" }, 0.56);
+      tl.to(chrome, { opacity: 0, y: -10, duration: 0.1, ease: "none" }, 0)
+        .to(textStage.current, { opacity: 0, scale: 0.9, duration: 0.22, ease: "none" }, 0)
+        .fromTo(
+          fistStage.current,
+          { scale: 0.55 },
+          { scale: 1.3, duration: 0.6, ease: "none" },
+          0.1,
+        )
+        .to(fistStage.current, { opacity: 1, duration: 0.16, ease: "none" }, 0.1)
+        .to(photoStage.current, { opacity: 1, duration: 0.24, ease: "none" }, 0.42)
+        .to(fistStage.current, { opacity: 0, duration: 0.16, ease: "none" }, 0.54)
+        .to(chrome, { opacity: 1, y: 0, duration: 0.16, ease: "none" }, 0.76);
     }, root);
 
     return () => ctx.revert();
@@ -107,13 +122,14 @@ export default function Hero() {
           </h1>
         </div>
 
-        {/* Stage 2: the fist, big and centred. */}
+        {/* Stage 2: the fist - grows continuously as it fades in, holds
+            large, then fades out over the photo. */}
         <div
           ref={fistStage}
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0"
+          className="pointer-events-none absolute inset-0 z-10 flex origin-center items-center justify-center opacity-0 will-change-transform"
         >
-          <img src={fist} alt="" className="h-[42vh] w-auto max-w-[70vw] object-contain" />
+          <img src={fist} alt="" className="h-[48vh] w-auto max-w-[80vw] object-contain" />
         </div>
 
         {/* Stage 3: the room, full-bleed. */}

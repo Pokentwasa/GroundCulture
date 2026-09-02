@@ -6,7 +6,6 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Cursor from "@/components/Cursor";
-import Loader from "@/components/Loader";
 import MobileUtilityBar from "@/components/MobileUtilityBar";
 import JsonLd from "@/components/JsonLd";
 import { localBusinessSchema } from "@/lib/jsonld";
@@ -81,7 +80,6 @@ export default function RootLayout({
     >
       <body>
         <JsonLd data={localBusinessSchema()} />
-        <Loader />
         <Cursor />
         <SmoothScroll>
           <Navigation />
