@@ -57,31 +57,28 @@ function FallbackPoster({ event }: { event: GcEvent }) {
 }
 
 export default function EventCarousel({ events }: { events: GcEvent[] }) {
+  const n = events.length;
+  // Three laps of the programme back to back, so there's always a real
+  // poster peeking in on both sides - including at the very first/last
+  // event - and navigation can just keep going past either end. Once
+  // settled, we quietly re-centre into the middle lap (see settle logic
+  // below) so this can repeat indefinitely without ever running out of
+  // clones to scroll into.
+  const loop = n > 1 ? [...events, ...events, ...events] : events;
+  const initialIndex = n > 1 ? n : 0; // start of the middle lap (or the only card)
+
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const activeIndexRef = useRef(0);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(initialIndex);
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [rel, setRel] = useState("");
+  const settleTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const active = events[activeIndex];
+  const active = loop[((activeIndex % loop.length) + loop.length) % loop.length] ?? events[0];
 
   useEffect(() => {
     setRel(active ? relativeDayLabel(active.date, new Date()) : "");
   }, [active]);
-
-  // Reset to the first poster whenever the event list itself changes
-  // (e.g. a filter switch), so stale scroll position never lingers.
-  // cardRefs is intentionally left alone: React's ref callbacks keep each
-  // index in sync as cards mount/unmount, so clearing it here would only
-  // wipe out refs the initial render just attached.
-  const eventsKey = events.map((e) => e.slug).join("|");
-  useEffect(() => {
-    activeIndexRef.current = 0;
-    setActiveIndex(0);
-    trackRef.current?.scrollTo({ left: 0, behavior: "auto" });
-    requestAnimationFrame(updateFrame);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventsKey]);
 
   // Continuous distance-from-centre -> scale/opacity, applied straight to
   // the DOM (no per-frame React state) so scrubbing stays smooth.
@@ -115,7 +112,28 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
       activeIndexRef.current = closest;
       setActiveIndex(closest);
     }
+    return closest;
   }, []);
+
+  const scrollToIndex = useCallback((i: number, behavior: ScrollBehavior = "smooth") => {
+    const el = cardRefs.current[i];
+    el?.scrollIntoView({ behavior, inline: "center", block: "nearest" });
+  }, []);
+
+  // Once scrolling has settled, if we've drifted into the first or third
+  // lap (from repeated wheel/drag/arrow travel), silently re-centre into
+  // the equivalent card in the middle lap - instantly, no animation, and
+  // only after the fact, so it's invisible: the clone and the real card
+  // it's swapped for render identically.
+  const resettleIfNeeded = useCallback(() => {
+    if (n <= 1) return;
+    const idx = activeIndexRef.current;
+    if (idx >= n && idx < 2 * n) return; // already in the middle lap
+    const target = n + (((idx % n) + n) % n);
+    scrollToIndex(target, "auto");
+    activeIndexRef.current = target;
+    setActiveIndex(target);
+  }, [n, scrollToIndex]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -128,30 +146,41 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
         updateFrame();
         ticking = false;
       });
+      clearTimeout(settleTimer.current);
+      settleTimer.current = setTimeout(resettleIfNeeded, 160);
     };
-    updateFrame();
     track.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       track.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      clearTimeout(settleTimer.current);
     };
-  }, [updateFrame]);
+  }, [updateFrame, resettleIfNeeded]);
 
-  const scrollToIndex = useCallback((i: number) => {
-    const el = cardRefs.current[i];
-    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, []);
+  // Reset to the middle lap's first poster whenever the event list itself
+  // changes (e.g. a filter switch), so stale scroll position never lingers.
+  // cardRefs is intentionally left alone: React's ref callbacks keep each
+  // index in sync as cards mount/unmount, so clearing it here would only
+  // wipe out refs the initial render just attached.
+  const eventsKey = events.map((e) => e.slug).join("|");
+  useEffect(() => {
+    activeIndexRef.current = initialIndex;
+    setActiveIndex(initialIndex);
+    requestAnimationFrame(() => {
+      scrollToIndex(initialIndex, "auto");
+      updateFrame();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventsKey]);
 
-  // Convert a mostly-vertical wheel gesture into horizontal motion, but let
-  // the page keep scrolling once the rail has nowhere further to go.
+  // Convert a mostly-vertical wheel gesture into horizontal motion. No
+  // start/end bail-out needed any more - the rail always has more lap to
+  // scroll into.
   const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     const track = trackRef.current;
     if (!track) return;
     if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-    const atStart = track.scrollLeft <= 1;
-    const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 1;
-    if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;
     e.preventDefault();
     track.scrollLeft += e.deltaY;
   };
@@ -179,10 +208,10 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") {
       e.preventDefault();
-      scrollToIndex(Math.min(activeIndex + 1, events.length - 1));
+      scrollToIndex(activeIndex + 1);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      scrollToIndex(Math.max(activeIndex - 1, 0));
+      scrollToIndex(activeIndex - 1);
     }
   };
 
@@ -210,11 +239,11 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
           style={{ width: "calc(50% - var(--stage-w) / 2)" }}
         />
 
-        {events.map((event, i) => {
+        {loop.map((event, i) => {
           const isActive = i === activeIndex;
           return (
             <div
-              key={event.slug}
+              key={`${event.slug}-${i}`}
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
@@ -239,7 +268,7 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
                   <img
                     src={event.image}
                     alt={event.title}
-                    loading={i < 3 ? "eager" : "lazy"}
+                    loading={Math.abs(i - n) < 3 ? "eager" : "lazy"}
                     decoding="async"
                     className="h-full w-full bg-ink object-contain"
                   />
@@ -263,20 +292,18 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
         />
       </div>
 
-      {/* Arrows (desktop) */}
+      {/* Arrows (desktop) - always active, the rail loops both ways. */}
       <button
         aria-label="Previous event"
-        onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
-        disabled={activeIndex === 0}
-        className="absolute left-2 top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center border border-ink/25 bg-paper/80 p-3 backdrop-blur transition-opacity hover:border-ink disabled:pointer-events-none disabled:opacity-0 md:flex"
+        onClick={() => scrollToIndex(activeIndex - 1)}
+        className="absolute left-2 top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center border border-ink/25 bg-paper/80 p-3 backdrop-blur transition-opacity hover:border-ink md:flex"
       >
         &#8592;
       </button>
       <button
         aria-label="Next event"
-        onClick={() => scrollToIndex(Math.min(activeIndex + 1, events.length - 1))}
-        disabled={activeIndex === events.length - 1}
-        className="absolute right-2 top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center border border-ink/25 bg-paper/80 p-3 backdrop-blur transition-opacity hover:border-ink disabled:pointer-events-none disabled:opacity-0 md:flex"
+        onClick={() => scrollToIndex(activeIndex + 1)}
+        className="absolute right-2 top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center border border-ink/25 bg-paper/80 p-3 backdrop-blur transition-opacity hover:border-ink md:flex"
       >
         &#8594;
       </button>
@@ -312,7 +339,7 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
           </a>
         </div>
         <div className="mt-3 meta text-[0.6rem] uppercase tracking-[0.14em] text-ink/40">
-          {String(activeIndex + 1).padStart(2, "0")} &#8213; {String(events.length).padStart(2, "0")}
+          {String((((activeIndex % n) + n) % n) + 1).padStart(2, "0")} &#8213; {String(n).padStart(2, "0")}
         </div>
       </div>
     </div>
