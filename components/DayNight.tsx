@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
 const dayList = ["Coffee", "Breakfast", "Lunch", "Work", "Meet", "Connect"];
 const nightList = ["Comedy", "Music", "Shows", "Drinks", "Chaos", "Community"];
@@ -18,6 +18,12 @@ function Column({
   list: string[];
 }) {
   const isDay = kind === "day";
+  // The real photos run against the "day = light bg, night = dark bg"
+  // assumption: the day shot skews moody/dark, the night shot (a bright
+  // event flyer) skews light. Text protects itself against whichever
+  // photo actually landed here, so the treatment is keyed to that, not
+  // to the day/night label.
+  const light = isDay; // day text is light-on-dark; night text is dark-on-light
   return (
     <div className="relative flex h-full flex-col justify-between p-6 md:p-12">
       {/* Bottom scrim: protects the tag list without dimming the photo
@@ -25,13 +31,13 @@ function Column({
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t ${
-          isDay ? "from-paper/90 via-paper/25" : "from-ink/90 via-ink/25"
+          light ? "from-ink/90 via-ink/25" : "from-paper/90 via-paper/25"
         } to-transparent`}
       />
 
       <span
         className={`meta relative w-fit text-[0.7rem] uppercase tracking-[0.18em] ${
-          isDay ? "bg-paper/80 text-ink/70" : "bg-ink/70 text-paper/70"
+          light ? "bg-ink/70 text-paper/70" : "bg-paper/80 text-ink/70"
         } px-2.5 py-1`}
       >
         {isDay ? "08:00" : "20:00"}
@@ -39,9 +45,9 @@ function Column({
 
       <h3
         className={`display text-[22vw] leading-[0.8] md:text-[13vw] ${
-          isDay
-            ? "text-ink [filter:drop-shadow(0_6px_28px_rgba(241,236,222,0.85))]"
-            : "text-paper [filter:drop-shadow(0_6px_28px_rgba(0,0,0,0.7))]"
+          light
+            ? "text-paper [filter:drop-shadow(0_6px_28px_rgba(0,0,0,0.7))]"
+            : "text-ink [filter:drop-shadow(0_6px_28px_rgba(241,236,222,0.85))]"
         }`}
       >
         {isDay ? "Day." : "Night."}
@@ -49,13 +55,13 @@ function Column({
 
       <ul
         className={`relative flex flex-wrap gap-x-2 gap-y-2 text-sm font-semibold uppercase tracking-[0.08em] ${
-          isDay ? "text-ink" : "text-paper"
+          light ? "text-paper" : "text-ink"
         }`}
       >
         {list.map((x) => (
           <li
             key={x}
-            className={isDay ? "bg-paper/80 px-2.5 py-1" : "bg-ink/70 px-2.5 py-1"}
+            className={light ? "bg-ink/70 px-2.5 py-1" : "bg-paper/80 px-2.5 py-1"}
           >
             {x}
           </li>
@@ -67,83 +73,90 @@ function Column({
 
 export default function DayNight() {
   const section = useRef<HTMLElement>(null);
-  const nightLayer = useRef<HTMLDivElement>(null);
+  const pinTarget = useRef<HTMLDivElement>(null);
+  const nightPhoto = useRef<HTMLDivElement>(null);
+  const dayText = useRef<HTMLDivElement>(null);
+  const nightText = useRef<HTMLDivElement>(null);
   const divider = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Reduced motion: show a static 50/50 split instead of the scrub.
       if (prefersReducedMotion()) {
-        gsap.set(nightLayer.current, { clipPath: "inset(0% 0% 0% 50%)" });
+        gsap.set(nightPhoto.current, { clipPath: "inset(0% 50% 0% 0%)" });
+        gsap.set(nightText.current, { opacity: 1, clipPath: "inset(0% 50% 0% 0%)" });
+        gsap.set(dayText.current, { clipPath: "inset(0% 0% 0% 50%)" });
         gsap.set(divider.current, { left: "50%" });
         return;
       }
 
-      gsap.set(nightLayer.current, { clipPath: "inset(0% 0% 0% 100%)" });
-      gsap.set(divider.current, { xPercent: 0, left: "100%" });
+      gsap.set(nightPhoto.current, { clipPath: "inset(0% 100% 0% 0%)" });
+      gsap.set(nightText.current, { opacity: 0 });
+      gsap.set(divider.current, { left: "0%" });
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section.current,
           start: "top top",
-          end: "+=120%",
+          end: () => `+=${window.innerHeight}`,
           scrub: 0.6,
+          pin: pinTarget.current,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
       });
 
-      tl.to(
-        nightLayer.current,
-        { clipPath: "inset(0% 0% 0% 0%)", ease: "none" },
-        0,
-      ).to(divider.current, { left: "0%", ease: "none" }, 0);
+      // The photo wipe runs the full scrub (the cinematic part). The text
+      // swap runs fast, over just the first slice of it, as a clean
+      // crossfade rather than getting physically sliced by the moving
+      // clip line - that's what made Day's headline linger and garble
+      // together with Night's.
+      tl.to(nightPhoto.current, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", duration: 1 }, 0)
+        .to(divider.current, { left: "100%", ease: "none", duration: 1 }, 0)
+        .to(dayText.current, { opacity: 0, ease: "none", duration: 0.28 }, 0)
+        .to(nightText.current, { opacity: 1, ease: "none", duration: 0.28 }, 0);
     }, section);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={section} className="relative h-[240vh]">
-      <div className="sticky top-0 h-[100svh] overflow-hidden">
-        {/* DAY base layer. The photo is the interface here, not a tint
-            behind it — text protects itself (scrim + chips) instead of
-            the image getting dimmed. */}
-        <div className="absolute inset-0 bg-paper">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url(${dayImg})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="relative z-10 h-full">
-            <Column kind="day" list={dayList} />
-          </div>
-        </div>
-
-        {/* NIGHT overlay (scrubbed wipe). Default-clipped so it never
-            flashes over DAY before JS initialises. */}
+    <section ref={section} className="relative">
+      <div ref={pinTarget} className="relative h-[100svh] overflow-hidden">
+        {/* DAY photo - the permanent base, never clipped. */}
         <div
-          ref={nightLayer}
           className="absolute inset-0 bg-ink"
-          style={{ clipPath: "inset(0% 0% 0% 100%)" }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url(${nightImg})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="relative z-10 h-full">
-            <Column kind="night" list={nightList} />
-          </div>
+          style={{
+            backgroundImage: `url(${dayImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+
+        {/* NIGHT photo - wipes in over the day photo. */}
+        <div
+          ref={nightPhoto}
+          className="absolute inset-0 bg-paper"
+          style={{
+            backgroundImage: `url(${nightImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            clipPath: "inset(0% 100% 0% 0%)",
+          }}
+        />
+
+        {/* Text overlays - crossfade independently of the photo clip, so
+            neither headline is ever sliced mid-word by the wipe line. */}
+        <div ref={dayText} className="absolute inset-0 z-10">
+          <Column kind="day" list={dayList} />
+        </div>
+        <div ref={nightText} className="absolute inset-0 z-10 opacity-0">
+          <Column kind="night" list={nightList} />
         </div>
 
         {/* moving divider */}
         <div
           ref={divider}
-          className="absolute top-0 z-40 hidden h-full w-[3px] bg-chilli md:block"
+          className="absolute top-0 z-20 hidden h-full w-[3px] bg-chilli md:block"
         />
       </div>
     </section>
