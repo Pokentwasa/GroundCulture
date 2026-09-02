@@ -115,9 +115,18 @@ export default function EventCarousel({ events }: { events: GcEvent[] }) {
     return closest;
   }, []);
 
+  // Scrolls only the track's own horizontal axis. el.scrollIntoView()
+  // looks equivalent but walks every scrollable ancestor including the
+  // page itself - with block:"nearest" it still yanked the whole window
+  // down to this section on first mount, since the card wasn't yet
+  // vertically in view. Computing the offset directly keeps this
+  // strictly local to the carousel.
   const scrollToIndex = useCallback((i: number, behavior: ScrollBehavior = "smooth") => {
+    const track = trackRef.current;
     const el = cardRefs.current[i];
-    el?.scrollIntoView({ behavior, inline: "center", block: "nearest" });
+    if (!track || !el) return;
+    const target = el.offsetLeft - (track.clientWidth - el.clientWidth) / 2;
+    track.scrollTo({ left: target, behavior });
   }, []);
 
   // Once scrolling has settled, if we've drifted into the first or third
