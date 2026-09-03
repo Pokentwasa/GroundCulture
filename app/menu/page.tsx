@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PageHeader from "@/components/PageHeader";
 import ArrowLink from "@/components/ArrowLink";
 import { site } from "@/lib/site";
@@ -69,14 +70,16 @@ export default function MenuPage() {
 
       {/* Real menu cards */}
       <div className="u-container mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {menuCards.map((c) => (
+        {menuCards.map((c, i) => (
           <figure key={c.title} className="group">
             <div className="poster relative aspect-[5/7] w-full overflow-hidden [box-shadow:6px_6px_0_0_var(--gc-ink)]">
-              <img
+              <Image
                 src={c.src}
                 alt={`${c.title} menu`}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                fill
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                priority={i === 0}
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </div>
             <figcaption className="meta mt-3 text-[0.66rem] uppercase tracking-[0.14em] text-ink/60">

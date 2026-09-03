@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PageHeader from "@/components/PageHeader";
 import ArrowLink from "@/components/ArrowLink";
 import { site } from "@/lib/site";
@@ -53,11 +54,12 @@ export default function GalleryPage() {
             key={i}
             className={`poster group relative overflow-hidden [box-shadow:4px_4px_0_0_var(--gc-ink)] ${s.span}`}
           >
-            <img
+            <Image
               src={s.src}
               alt="Ground Culture, Observatory"
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              fill
+              sizes="(min-width: 768px) 25vw, 50vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <figcaption className="absolute bottom-0 left-0 translate-y-full bg-ink px-2 py-1 meta text-[0.54rem] uppercase tracking-[0.12em] text-paper transition-transform duration-300 group-hover:translate-y-0">
               Observatory

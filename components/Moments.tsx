@@ -1,3 +1,4 @@
+import Image from "next/image";
 import ArrowLink from "@/components/ArrowLink";
 
 const WIX = "https://static.wixstatic.com/media";
@@ -50,11 +51,12 @@ export default function Moments() {
               key={i}
               className={`poster relative aspect-[4/3] overflow-hidden [box-shadow:5px_5px_0_0_var(--gc-ink)] first:aspect-[3/4] ${s.rotate} ${s.span}`}
             >
-              <img
+              <Image
                 src={s.src}
                 alt="Ground Culture, Observatory"
-                loading="lazy"
-                className="h-full w-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 40vw, 50vw"
+                className="object-cover"
               />
             </figure>
           ))}

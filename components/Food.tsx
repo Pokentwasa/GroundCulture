@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
 import { site } from "@/lib/site";
 import ArrowLink from "@/components/ArrowLink";
@@ -96,10 +97,12 @@ export default function Food() {
           <div className="relative">
             <div className="poster relative aspect-square w-full overflow-hidden [box-shadow:8px_8px_0_0_var(--gc-ink)]">
               <div ref={img} className="absolute inset-0 scale-110">
-                <img
+                <Image
                   src={burger}
                   alt="A Ground Culture smash burger"
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
                 />
               </div>
             </div>

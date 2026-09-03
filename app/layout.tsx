@@ -59,11 +59,13 @@ export const metadata: Metadata = {
     description: site.tagline,
     url: site.url,
     locale: "en_ZA",
+    images: [{ url: site.defaultOgImage, width: 1200, height: 630, alt: site.name }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ground Culture | Cape Town Food, Comedy & Culture",
     description: site.tagline,
+    images: [site.defaultOgImage],
   },
   alternates: { canonical: site.url },
 };

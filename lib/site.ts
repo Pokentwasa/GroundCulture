@@ -8,6 +8,12 @@ export const site = {
   tagline: "Cape Town food, comedy & culture under one roof.",
   shortPitch: "Coffee by day. Culture by night.",
   url: "https://www.groundculture.co.za",
+  // Sitewide fallback for link previews (Slack, WhatsApp, X, etc.) on any
+  // page that doesn't set its own openGraph.images - the real Observatory
+  // HQ photo already used on the locations page, just cropped to the
+  // 1200x630 ratio social platforms expect.
+  defaultOgImage:
+    "https://static.wixstatic.com/media/207811_73fd8300ba984a9ebca83c2bdcc8ead5~mv2.jpg/v1/fill/w_1200,h_630,al_c,q_85,enc_avif,quality_auto/207811_73fd8300ba984a9ebca83c2bdcc8ead5~mv2.jpg",
 
   hq: {
     label: "Ground Culture Cafe",
