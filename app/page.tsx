@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import Marquee from "@/components/Marquee";
 import WhatsOn from "@/components/WhatsOn";
 import DayNight from "@/components/DayNight";
 import Food from "@/components/Food";
@@ -19,7 +18,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Marquee />
       <WhatsOn />
       <DayNight />
       <Food />
